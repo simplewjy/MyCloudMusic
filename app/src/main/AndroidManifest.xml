@@ -5,20 +5,30 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:usesCleartextTraffic="true"
+        android:name=".App"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/icon_cloud_music"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/icon_cloud_music"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MyCloudMusic">
-        <activity android:name=".MainActivity">
+        android:theme="@style/MyNoActionBarTheme"
+        android:usesCleartextTraffic="true">
+        <activity android:name=".module.splash.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".MainActivity"/>
+
+        <meta-data
+            android:name="design_width_in_dp"
+            android:value="360"/>
+        <meta-data
+            android:name="design_height_in_dp"
+            android:value="640"/>
     </application>
+
+
 
 </manifest>

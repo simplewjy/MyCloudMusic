@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import com.simple.mycloudmusic.databinding.ActivityMainBinding
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -19,6 +20,8 @@ class MainActivity : AppCompatActivity() {
             }
             wb_test.webChromeClient = WebChromeClient()
         }
+        val webSettings = wb_test.settings
+        webSettings.javaScriptEnabled = true
         wb_test.loadUrl("https://dioa.gitee.io/mobile-personal-page/#/introduce")
     }
 

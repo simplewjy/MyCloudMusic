@@ -6,6 +6,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 /**
  * Created by Admin
@@ -15,7 +16,6 @@ class RetrofitService {
 
     private lateinit var mRetrofit: Retrofit
 
-    private var instance: RetrofitService? = null
 
     constructor() {
         build()
@@ -23,9 +23,30 @@ class RetrofitService {
 
     companion object {
 
+
         @JvmField
         var BaseUrl: String = ""
 
+        //默认连接超时时间
+        const val DEFAULT_CONNECT_TIME_OUT = 15L
+
+        //默认读数据超时时间
+        const val DEFAULT_READ_TIME_OUT = 15L
+
+        //单例
+        private var instance: RetrofitService? = null
+
+        /**
+         * 获取单例
+         */
+        fun getInstance(url: String?): RetrofitService {
+            synchronized(RetrofitService::class.java) {
+                if (instance == null || url != BaseUrl) {
+                    instance = RetrofitService()
+                }
+                return instance!!
+            }
+        }
 
     }
 
@@ -36,22 +57,6 @@ class RetrofitService {
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-    }
-
-    private fun setBaseUrl(baseUrl: String) {
-
-    }
-
-    /**
-     * 获取单例
-     */
-    private fun getInstance(): RetrofitService {
-        synchronized(RetrofitService::class.java) {
-            if (instance == null) {
-                instance = RetrofitService()
-            }
-            return instance!!
-        }
     }
 
     /**
@@ -72,11 +77,13 @@ class RetrofitService {
                 true
             }
         val loggingInterceptor = HttpLoggingInterceptor { message ->
-            Log.i("cloudMusic==========>", message)
+            Log.i("http", message)
         }
         loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
 
         okHttpClientBuilder.addInterceptor(loggingInterceptor)
+        okHttpClientBuilder.connectTimeout(DEFAULT_CONNECT_TIME_OUT, TimeUnit.SECONDS)
+        okHttpClientBuilder.readTimeout(DEFAULT_READ_TIME_OUT, TimeUnit.SECONDS)
         return okHttpClientBuilder.build()
     }
 
