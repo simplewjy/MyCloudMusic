@@ -13,11 +13,13 @@
         android:supportsRtl="true"
         android:theme="@style/MyNoActionBarTheme"
         android:usesCleartextTraffic="true">
+        <activity android:name=".module.home.activity.HomeActivity"></activity>
         <activity
             android:name=".module.splash.SplashActivity"
             android:theme="@style/FullTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -28,13 +30,10 @@
             android:value="360" />
         <meta-data
             android:name="design_height_in_dp"
-            android:value="640" />
-
-        <!--全屏设置，必须加入-->
+            android:value="640" /> <!-- 全屏设置，必须加入 -->
         <meta-data
             android:name="android.notch_support"
             android:value="true" />
     </application>
-
 
 </manifest>
