@@ -4,4 +4,22 @@
         <item name="android:textSize">@dimen/sp_10</item>
         <item name="android:textColor">@color/white</item>
     </style>
+
+    <declare-styleable name="BorderLayout">
+        <attr name="border_horizontal_padding" format="dimension" />
+        <attr name="border_vertical_padding" format="dimension" />
+        <attr name="border_color" format="color|reference" />
+        <attr name="border_width" format="dimension" />
+        <attr name="border_interval" format="dimension" />
+        <attr name="border_left_top_radius_x" format="dimension" />
+        <attr name="border_left_top_radius_y" format="dimension" />
+        <attr name="border_right_top_radius_x" format="dimension" />
+        <attr name="border_right_top_radius_y" format="dimension" />
+        <attr name="border_left_bottom_radius_x" format="dimension" />
+        <attr name="border_left_bottom_radius_y" format="dimension" />
+        <attr name="border_right_bottom_radius_x" format="dimension" />
+        <attr name="border_right_bottom_radius_y" format="dimension" />
+        <attr name="border_animation_mode" format="string" />
+        <attr name="border_animation_time" format="integer" />
+    </declare-styleable>
 </resources>
