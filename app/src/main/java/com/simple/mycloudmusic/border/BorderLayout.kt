@@ -12,9 +12,12 @@ import android.util.AttributeSet
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.ScaleAnimation
 import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.core.graphics.transform
+import com.example.myapplication.border.BorderAnimationMode
 import com.simple.mycloudmusic.R
 
 /**
@@ -38,11 +41,14 @@ class BorderLayout : FrameLayout {
         //默认边框与子view间隔
         private const val BORDER_DEFAULT_INTERVAL = 4f
 
-        //动画加载单位时间，该值不建议改动，如需改动只可改小，不可改大，人眼的反应时间为0.1s，超过0.1s将会出现卡顿
+        //动画加载单位时间，人眼的反应时间为0.1s，超过0.1s将会出现明显的卡顿
         private const val BORDER_ANIMATION_INTERVAL_TIME = 100L
 
         //单个周期的动画时间，如scale动画扩展为一个周期，缩小为一个周期
         private const val BORDER_ANIMATION_DEFAULT_TIME = 1000
+
+        //动画每次扩展频率
+        private const val BORDER_ANIMATION_DEFAULT_FREQUENCY = 10
     }
 
     private lateinit var mPaint: Paint
@@ -104,7 +110,12 @@ class BorderLayout : FrameLayout {
     /**
      * 动画时间，毫秒为单位
      */
-    private var animationFrequency = 10
+    private var animationDuration = BORDER_ANIMATION_DEFAULT_TIME
+
+    /**
+     * 动画频率
+     */
+    private var animationFrequency = BORDER_ANIMATION_DEFAULT_FREQUENCY
 
     private var mHandler: Handler = MyHandler(Looper.getMainLooper())
 
@@ -112,6 +123,27 @@ class BorderLayout : FrameLayout {
      * 是否需要自定义radius，而非使用背景默认的radius
      */
     private var needCustomRadius = false
+
+    /**
+     * 是否正在执行animation动画
+     */
+    private var animatingFlag = false
+
+    /**
+     * 动画效果重复次数
+     */
+    private var animationRepeatCount = -1
+
+    /**
+     * scale放大动画的X/Y方向的比例
+     */
+    private var animationScaleX = 1f
+    private var animationScaleY = 1f
+
+    /**
+     * 是否需要绘制边框
+     */
+    private var drawBorder = true
 
     constructor(context: Context) : super(context)
 
@@ -153,6 +185,19 @@ class BorderLayout : FrameLayout {
      * 初始化属性
      */
     private fun initAttributes(resourceValue: TypedArray) {
+        val borderRadius = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            resourceValue.getDimension(R.styleable.BorderLayout_border_radius, 0f),
+            context.resources.displayMetrics
+        )
+        leftTopRadiusX = borderRadius
+        leftTopRadiusY = borderRadius
+        leftBottomRadiusX = borderRadius
+        leftBottomRadiusY = borderRadius
+        rightTopRadiusX = borderRadius
+        rightTopRadiusY = borderRadius
+        rightBottomRadiusX = borderRadius
+        rightBottomRadiusY = borderRadius
         leftTopRadiusX = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
             resourceValue.getDimension(R.styleable.BorderLayout_border_left_top_radius_x, 0f),
@@ -219,14 +264,24 @@ class BorderLayout : FrameLayout {
             context.resources.displayMetrics
         )
         //默认动画效果为NONE
-        animationMode = resourceValue.getString(R.styleable.BorderLayout_border_animation_mode) ?: BorderAnimationMode.NONE
-
-        val animationTime = resourceValue.getInt(R.styleable.BorderLayout_border_animation_time, BORDER_ANIMATION_DEFAULT_TIME)
-        animationFrequency = if (animationTime / BORDER_ANIMATION_INTERVAL_TIME <= 0L) {
-            10
-        } else {
-            (animationTime / BORDER_ANIMATION_INTERVAL_TIME).toInt()
+        animationMode = resourceValue.getInt(R.styleable.BorderLayout_border_animation_mode, BorderAnimationMode.NONE)
+        when (animationMode) {
+            BorderAnimationMode.PART_SCALE -> {
+                animationFrequency = if (animationDuration / BORDER_ANIMATION_INTERVAL_TIME <= 0L) {
+                    BORDER_ANIMATION_DEFAULT_FREQUENCY
+                } else {
+                    (animationDuration / BORDER_ANIMATION_INTERVAL_TIME).toInt()
+                }
+                animationDuration = resourceValue.getInt(R.styleable.BorderLayout_border_animation_time, BORDER_ANIMATION_DEFAULT_TIME)
+            }
+            BorderAnimationMode.SCALE -> {
+                animationDuration = resourceValue.getInt(R.styleable.BorderLayout_border_animation_time, BORDER_ANIMATION_DEFAULT_TIME)
+                animationScaleX = resourceValue.getFloat(R.styleable.BorderLayout_border_animation_scaleX, 1f)
+                animationScaleY = resourceValue.getFloat(R.styleable.BorderLayout_border_animation_scaleY, 1f)
+            }
         }
+        drawBorder = resourceValue.getBoolean(R.styleable.BorderLayout_border_draw_border, true)
+        animationRepeatCount = resourceValue.getInteger(R.styleable.BorderLayout_border_animation_repeat_count, -1)
         //修正边框宽度
         if (borderWidth <= 0f) {
             borderWidth = BORDER_DEFAULT_WIDTH
@@ -234,9 +289,11 @@ class BorderLayout : FrameLayout {
         //修正横纵向padding，否则interval间隔属性不会生效
         if (interval > horizontalPadding) {
             horizontalPadding = interval.toInt()
+            interval = interval.toInt().toFloat()
         }
         if (interval > verticalPadding) {
             verticalPadding = interval.toInt()
+            interval = interval.toInt().toFloat()
         }
         setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding)
     }
@@ -254,8 +311,8 @@ class BorderLayout : FrameLayout {
         mPointPaint = Paint()
         mPointPaint.isAntiAlias = true
         mPointPaint.color = Color.BLACK
-        mPointPaint.style = Paint.Style.FILL
-        mPointPaint.strokeWidth = 10f
+        mPointPaint.style = Paint.Style.STROKE
+        mPointPaint.strokeWidth = borderWidth
     }
 
     override fun dispatchDraw(canvas: Canvas?) {
@@ -265,7 +322,15 @@ class BorderLayout : FrameLayout {
                 //do nothing
             }
             childCount == BORDER_CRITICAL_COUNT -> {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N || !hasFocus()) {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                    return
+                }
+                if (!hasFocus()) {
+                    if (animatingFlag) {
+//                        handleOverallAnimation(animationScaleX, 1f, animationScaleY, 1f)
+                        clearAnimation()
+                        animatingFlag = false
+                    }
                     return
                 }
                 drawBorder(canvas)
@@ -282,57 +347,104 @@ class BorderLayout : FrameLayout {
     @SuppressLint("SoonBlockedPrivateApi")
     @RequiresApi(Build.VERSION_CODES.N)
     private fun drawBorder(canvas: Canvas?) {
-        val childView = getChildAt(0)
-        //获取子模块的轮廓
-        val outLine = Outline()
-        childView.background.getOutline(outLine)
-        //获取边框相对于子布局背景的比例
-        val matrix = dispatchAnimationMode(canvas, childView)
-        val rect = Rect()
-        val rectMode = outLine.getRect(rect)
-        Log.d(TAG, "drawBorder: rectMode is $rectMode, needCustomRadius is $needCustomRadius")
-        when {
-            rectMode && needCustomRadius -> {
-                val rectF = handleRectCoordinate(rect, matrix)
-                val borderWidth = rectF.right - rectF.left
-                val borderHeight = rectF.bottom - rectF.top
-                amendRadius(borderWidth, borderHeight)
-                //从矩形左上方处顺时针绘制
-                val tempPath = Path()
-                tempPath.moveTo(rectF.left + leftTopRadiusX / 2, rectF.top)
-                tempPath.lineTo(rectF.right - rightTopRadiusX / 2, rectF.top)
-                tempPath.arcTo(rectF.right - rightTopRadiusX, rectF.top, rectF.right, rectF.top + rightTopRadiusY, 270f, 90f, true)
-                tempPath.lineTo(rectF.right, rectF.bottom - rightBottomRadiusY / 2)
-                tempPath.arcTo(rectF.right - rightBottomRadiusX, rectF.bottom - rightBottomRadiusY, rectF.right, rectF.bottom, 0f, 90f, true)
-                tempPath.lineTo(rectF.left + leftBottomRadiusX / 2, rectF.bottom)
-                tempPath.arcTo(rectF.left, rectF.bottom - leftBottomRadiusY, rectF.left + leftBottomRadiusX, rectF.bottom, 90f, 90f, true)
-                tempPath.lineTo(rectF.left, rectF.top + leftTopRadiusY / 2)
-                tempPath.arcTo(rectF.left, rectF.top, rectF.left + leftTopRadiusX, rectF.top + leftTopRadiusY, 180f, 90f, true)
-                canvas?.drawPath(tempPath, mPaint)
-            }
-            rectMode && !needCustomRadius -> {
-                //获取子模块的圆角半径
-                val radius = outLine.radius
-                val rectF = handleRectCoordinate(rect, matrix)
-                canvas?.drawRoundRect(rectF, radius, radius, mPaint)
-            }
-            else -> {
-                //反射获取path路径
-                val pathField = outLine.javaClass.getDeclaredField("mPath")
-                pathField.isAccessible = true
-                val path = pathField.get(outLine) as? Path
-                path?.let {
-                    it.offset(horizontalPadding.toFloat(), verticalPadding.toFloat())
-                    it.transform(matrix)
-                    canvas?.drawPath(it, mPaint)
+        if (drawBorder) {
+            val childView = getChildAt(0)
+            //获取子模块的轮廓
+            val outLine = Outline()
+            childView.background.getOutline(outLine)
+            //获取边框相对于子布局背景的比例
+            val matrix = dispatchAnimationMode(canvas, childView)
+            val rect = Rect()
+            val rectMode = outLine.getRect(rect)
+            Log.d(TAG, "drawBorder: rectMode is $rectMode, needCustomRadius is $needCustomRadius")
+            when {
+                rectMode -> {
+                    val rectF = handleRectCoordinate(rect, matrix)
+                    val borderLayoutWidth = rectF.right - rectF.left
+                    val borderLayoutHeight = rectF.bottom - rectF.top
+                    if (!needCustomRadius) {
+                        val radius = outLine.radius
+                        leftTopRadiusX = radius
+                        leftTopRadiusY = radius
+                        leftBottomRadiusX = radius
+                        leftBottomRadiusY = radius
+                        rightTopRadiusX = radius
+                        rightTopRadiusY = radius
+                        rightBottomRadiusX = radius
+                        rightBottomRadiusY = radius
+                    }
+                    amendRadius(borderLayoutWidth, borderLayoutHeight)
+                    //从矩形左上方处顺时针绘制
+                    val tempPath = Path()
+                    tempPath.moveTo(rectF.left + leftTopRadiusX, rectF.top)
+                    tempPath.lineTo(rectF.right - rightTopRadiusX, rectF.top)
+                    tempPath.arcTo(rectF.right - rightTopRadiusX * 2, rectF.top, rectF.right, rectF.top + rightTopRadiusY * 2, 270f, 90f, true)
+                    tempPath.lineTo(rectF.right, rectF.bottom - rightBottomRadiusY)
+                    tempPath.arcTo(
+                        rectF.right - rightBottomRadiusX * 2,
+                        rectF.bottom - rightBottomRadiusY * 2,
+                        rectF.right,
+                        rectF.bottom,
+                        0f,
+                        90f,
+                        true
+                    )
+                    tempPath.lineTo(rectF.left + leftBottomRadiusX, rectF.bottom)
+                    tempPath.arcTo(rectF.left, rectF.bottom - leftBottomRadiusY * 2, rectF.left + leftBottomRadiusX * 2, rectF.bottom, 90f, 90f, true)
+                    tempPath.lineTo(rectF.left, rectF.top + leftTopRadiusY)
+                    tempPath.arcTo(rectF.left, rectF.top, rectF.left + leftTopRadiusX * 2, rectF.top + leftTopRadiusY * 2, 180f, 90f, true)
+                    canvas?.drawPath(tempPath, mPaint)
+                }
+                else -> {
+                    //反射获取path路径
+                    val pathField = outLine.javaClass.getDeclaredField("mPath")
+                    pathField.isAccessible = true
+                    val path = pathField.get(outLine) as? Path
+                    path?.let {
+                        it.offset(horizontalPadding.toFloat(), verticalPadding.toFloat())
+                        it.transform(matrix)
+                        canvas?.drawPath(it, mPaint)
+                    }
                 }
             }
         }
-        if (animationMode == BorderAnimationMode.NONE) return
-        val msg = Message.obtain()
-        msg.what = 1
-        if (!mHandler.hasMessages(msg.what))
-            mHandler.sendMessageDelayed(msg, BORDER_ANIMATION_INTERVAL_TIME)
+        when (animationMode) {
+            BorderAnimationMode.PART_SCALE -> {
+                val msg = Message.obtain()
+                msg.what = 1
+                if (!mHandler.hasMessages(msg.what)) mHandler.sendMessageDelayed(msg, BORDER_ANIMATION_INTERVAL_TIME)
+            }
+            BorderAnimationMode.SCALE -> {
+                if (animatingFlag) return
+                handleOverallAnimation(1f, animationScaleX, 1f, animationScaleY)
+                animatingFlag = true
+            }
+        }
+    }
+
+    /**
+     * 处理整体动画
+     */
+    private fun handleOverallAnimation(fromScaleX: Float, toScaleX: Float, fromScaleY: Float, toScaleY: Float, cancelAnimation: Boolean = false) {
+        Log.i(TAG, "handleOverallAnimation: animatingFlag is $animatingFlag")
+        val scaleAnimation =
+            ScaleAnimation(fromScaleX, toScaleX, fromScaleY, toScaleY, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+        scaleAnimation.duration = animationDuration.toLong()
+        scaleAnimation.isFillEnabled = true
+        scaleAnimation.fillAfter = true
+        scaleAnimation.repeatCount = animationRepeatCount
+        scaleAnimation.repeatMode = Animation.REVERSE
+        if (cancelAnimation) scaleAnimation.setAnimationListener(animationListener)
+        startAnimation(scaleAnimation)
+    }
+
+    private val animationListener = object : Animation.AnimationListener {
+        override fun onAnimationStart(animation: Animation?) {}
+        override fun onAnimationEnd(animation: Animation?) {
+            clearAnimation()
+        }
+
+        override fun onAnimationRepeat(animation: Animation?) {}
     }
 
     /**
@@ -347,7 +459,7 @@ class BorderLayout : FrameLayout {
         val defaultScaleX = (interval + childWidth) / childWidth
         val defaultScaleY = (interval + childHeight) / childHeight
         return when (animationMode) {
-            BorderAnimationMode.SCALE -> {
+            BorderAnimationMode.PART_SCALE -> {
                 handleScaleAnimationMode(canvasWidth, canvasHeight, childWidth, childHeight, defaultScaleX, defaultScaleY)
             }
             else -> {
@@ -360,12 +472,7 @@ class BorderLayout : FrameLayout {
      * 处理scale动画
      */
     private fun handleScaleAnimationMode(
-        canvasWidth: Float,
-        canvasHeight: Float,
-        childWidth: Int,
-        childHeight: Int,
-        defaultScaleX: Float,
-        defaultScaleY: Float
+        canvasWidth: Float, canvasHeight: Float, childWidth: Int, childHeight: Int, defaultScaleX: Float, defaultScaleY: Float
     ): Matrix {
         val matrix = Matrix()
         //获取边框相对于子布局背景的比例
@@ -380,6 +487,7 @@ class BorderLayout : FrameLayout {
         }
         val periodScaleX = (maxScaleX - defaultScaleX) / animationFrequency
         val periodScaleY = (maxScaleY - defaultScaleY) / animationFrequency
+
         if (currentScaleX == 0f) {
             animationDirection = BorderDirection.FORWARD
             currentScaleX = defaultScaleX
@@ -414,10 +522,7 @@ class BorderLayout : FrameLayout {
      * 处理没有动画的场景
      */
     private fun handleNoneAnimationMode(
-        canvasWidth: Float,
-        canvasHeight: Float,
-        defaultScaleX: Float,
-        defaultScaleY: Float
+        canvasWidth: Float, canvasHeight: Float, defaultScaleX: Float, defaultScaleY: Float
     ): Matrix {
         val matrix = Matrix()
         matrix.setScale(defaultScaleX, defaultScaleY, canvasWidth / 2, canvasHeight / 2)
@@ -481,14 +586,4 @@ class BorderLayout : FrameLayout {
             rightBottomRadiusY = borderLayoutHeight / 2
         }
     }
-
-//    fun addOnClickListener(listener: OnClickListener?) {
-//        setOnClickListener {
-//            if (hasFocus()) {
-//                super.setOnClickListener(listener)
-//            } else {
-//                requestFocus()
-//            }
-//        }
-//    }
 }

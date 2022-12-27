@@ -11,6 +11,7 @@
         <attr name="border_color" format="color|reference" />
         <attr name="border_width" format="dimension" />
         <attr name="border_interval" format="dimension" />
+        <attr name="border_radius" format="dimension"/>
         <attr name="border_left_top_radius_x" format="dimension" />
         <attr name="border_left_top_radius_y" format="dimension" />
         <attr name="border_right_top_radius_x" format="dimension" />
@@ -19,7 +20,15 @@
         <attr name="border_left_bottom_radius_y" format="dimension" />
         <attr name="border_right_bottom_radius_x" format="dimension" />
         <attr name="border_right_bottom_radius_y" format="dimension" />
-        <attr name="border_animation_mode" format="string" />
+        <attr name="border_animation_mode">
+            <flag name="none" value="0" />
+            <flag name="scale" value="1" />
+            <flag name="part_scale" value="2" />
+        </attr>
         <attr name="border_animation_time" format="integer" />
+        <attr name="border_animation_repeat_count" format="integer" />
+        <attr name="border_animation_scaleX" format="float"/>
+        <attr name="border_animation_scaleY" format="float"/>
+        <attr name="border_draw_border" format="boolean"/>
     </declare-styleable>
 </resources>
