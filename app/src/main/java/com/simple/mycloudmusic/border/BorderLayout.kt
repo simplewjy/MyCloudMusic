@@ -347,8 +347,8 @@ class BorderLayout : FrameLayout {
     @SuppressLint("SoonBlockedPrivateApi")
     @RequiresApi(Build.VERSION_CODES.N)
     private fun drawBorder(canvas: Canvas?) {
-        if (drawBorder) {
-            val childView = getChildAt(0)
+        val childView = getChildAt(0)
+        if (drawBorder && childView.background != null) {
             //获取子模块的轮廓
             val outLine = Outline()
             childView.background.getOutline(outLine)
