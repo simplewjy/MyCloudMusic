@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">test</string>
+    <string name="errcode_success">发送成功</string>
+    <string name="errcode_cancel">发送取消</string>
+    <string name="errcode_deny">发送被拒绝</string>
+    <string name="errcode_unsupported">不支持错误</string>
+    <string name="errcode_unknown">发送返回</string>
+    <string name="show_from_wx_tip">这个界面用于显示微信向第三方app请求显示的信息</string>
+    <!-- WXMediaMessage -->
+    <string name="receive">从微信接收</string>
+    <string name="share_text_default">这段文字回应自微信SDK示例程序</string>
+    <string name="custom_toast">同意服务条款才可以登录</string>
+    <string name="switch_msg">切换到短信登录页面</string>
+    <string name="custom_title">自定义标题</string>
+    <string name="custom_slogan">自定义Slogan</string>
+
+    <!-- 应用授权管理 -->
+    <string name="app_main_auth_manage">应用授权管理</string>
+    <string name="app_main_open_auth_page">打开授权管理页</string>
+
+    <string name="qq_not_install">QQ未安装</string>
+    <string name="qq_branch_not_support">不支持的QQ版本(TIM/极速版)</string>
+    <string name="upgrade_qq">请升级至最新版QQ</string>
+    <string name="need_login">请登录QQ进行授权</string>
+</resources>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:paddingHorizontal="10dp"
+    android:orientation="vertical"
+    tools:context=".ui.LoginActivity">
+
+    <Button
+        android:id="@+id/btn_login"
+        android:text="登录"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/btn_send_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="发送文本" />
+
+    <Button
+        android:id="@+id/btn_share_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="分享文本" />
+
+    <Button
+        android:id="@+id/btn_send_img"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="发送图片" />
+
+    <Button
+        android:id="@+id/btn_share_img"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="分享图片" />
+
+    <Button
+        android:id="@+id/btn_send_video"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="发送视频" />
+
+    <Button
+        android:id="@+id/btn_share_video"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="分享视频" />
+
+    <Button
+        android:id="@+id/btn_send_webpage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="发送网页" />
+
+    <Button
+        android:id="@+id/btn_share_webpage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="分享网页" />
+
+    <Button
+        android:id="@+id/btn_wx_pay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="微信支付" />
+
+</LinearLayout>

@@ -1,0 +1,62 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'com.kezong.fat-aar'
+}
+apply from: "../maven-publishing.gradle"
+
+android {
+    compileSdkVersion rootProject.ext.android.compileSdkVersion
+    buildToolsVersion rootProject.ext.android.supportSdk
+
+    defaultConfig {
+        minSdk rootProject.ext.android.minSdkVersion
+        targetSdkVersion rootProject.ext.android.compileSdkVersion
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+        multiDexEnabled true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+}
+
+dependencies {
+
+    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'com.google.android.material:material:1.5.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
+    implementation 'com.google.firebase:firebase-firestore:24.1.0'
+    implementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    implementation 'com.github.bumptech.glide:glide:4.12.0'
+
+    //wx
+    api 'com.tencent.mm.opensdk:wechat-sdk-android:+'
+    //支付宝
+    api 'com.alipay.sdk:alipaysdk-android:+@aar'
+    //微博
+    api 'io.github.sinaweibosdk:core:12.5.0@aar'
+    //qq
+//    api 'com.tencent.tauth:qqopensdk:3.52.0'
+    embed(name: 'auth-number-product-2.12.11', ext: 'aar')
+    embed(name: 'logger-2.1.5.2-release', ext: 'aar')
+    embed(name: 'main-2.1.4-release', ext: 'aar')
+    embed(name: 'open_sdk_3.5.14.3_rc26220c_lite', ext: 'jar')
+//    implementation fileTree(include: ['*.jar'], dir: 'libs')
+}
