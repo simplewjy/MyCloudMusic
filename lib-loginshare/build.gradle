@@ -3,15 +3,18 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'com.kezong.fat-aar'
 }
-apply from: "../maven-publishing.gradle"
-
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
 android {
-    compileSdkVersion rootProject.ext.android.compileSdkVersion
-    buildToolsVersion rootProject.ext.android.supportSdk
+    compileSdkVersion 30
+    buildToolsVersion "30.0.2"
 
     defaultConfig {
-        minSdk rootProject.ext.android.minSdkVersion
-        targetSdkVersion rootProject.ext.android.compileSdkVersion
+        minSdk 23
+        targetSdkVersion 30
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -31,6 +34,7 @@ android {
     kotlinOptions {
         jvmTarget = '11'
     }
+
 }
 
 dependencies {
