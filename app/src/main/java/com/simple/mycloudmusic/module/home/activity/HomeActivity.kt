@@ -24,10 +24,10 @@ class HomeActivity : BaseActivity() {
         )
     }
 
-    private val a="a"
-    private val b="a"
-    private val c="a"
-    val d="a"
+    private val a = "a"
+    private val b = "a"
+    private val c = "a"
+    val d = "a"
 
     override fun getLayoutId(): Int {
         return R.layout.activity_home
@@ -45,20 +45,25 @@ class HomeActivity : BaseActivity() {
     private fun initTab() {
         //初始化tab
         val tabFound = tab_home.newTab()
-        tabFound.setIcon(R.mipmap.icon_cloud_music)
+        tabFound.setIcon(R.drawable.discovery_unselect)
         tabFound.text = resources.getString(R.string.found)
+        tabFound.view.tag = resources.getString(R.string.found)
         val tabSprinkler = tab_home.newTab()
         tabSprinkler.setIcon(R.mipmap.icon_cloud_music)
         tabSprinkler.text = resources.getString(R.string.sprinkler)
+        tabSprinkler.view.tag = resources.getString(R.string.sprinkler)
         val tabMine = tab_home.newTab()
         tabMine.setIcon(R.mipmap.icon_cloud_music)
         tabMine.text = resources.getString(R.string.mine)
+        tabMine.view.tag = resources.getString(R.string.mine)
         val tabKaraoke = tab_home.newTab()
         tabKaraoke.setIcon(R.mipmap.icon_cloud_music)
         tabKaraoke.text = resources.getString(R.string.karaoke)
+        tabKaraoke.view.tag = resources.getString(R.string.karaoke)
         val tabCloudVillage = tab_home.newTab()
         tabCloudVillage.setIcon(R.mipmap.icon_cloud_music)
         tabCloudVillage.text = resources.getString(R.string.cloud_village)
+        tabCloudVillage.view.tag = resources.getString(R.string.cloud_village)
 
         tab_home.addTab(tabFound)
         tab_home.addTab(tabSprinkler)
@@ -98,10 +103,60 @@ class HomeActivity : BaseActivity() {
      */
     private fun setTabState() {
         for (i in 0 until tab_home.tabCount) {
-            if (tab_home.getTabAt(i)!!.isSelected) {
-                tab_home.getTabAt(i)!!.setIcon(R.mipmap.icon_cloud_music)
-            } else {
-                tab_home.getTabAt(i)!!.setIcon(R.mipmap.ic_launcher)
+            val currentTab = tab_home.getTabAt(i)
+            setItemState(currentTab, currentTab?.isSelected)
+        }
+    }
+
+    private fun setItemState(currentTab: TabLayout.Tab?, select: Boolean?) {
+        when (currentTab?.view?.tag) {
+            R.string.found -> {
+                currentTab.setIcon(
+                    if (select == true) {
+                        R.drawable.discovery_select
+                    } else {
+                        R.drawable.discovery_unselect
+                    }
+                )
+            }
+            R.string.karaoke -> {
+                currentTab.setIcon(
+                    if (select == true) {
+                        R.drawable.discovery_select
+                    } else {
+                        R.drawable.discovery_select
+                    }
+                )
+            }
+            R.string.mine -> {
+                currentTab.setIcon(
+                    if (select == true) {
+                        R.drawable.discovery_select
+                    } else {
+                        R.drawable.discovery_select
+                    }
+                )
+            }
+            R.string.sprinkler -> {
+                currentTab.setIcon(
+                    if (select == true) {
+                        R.drawable.discovery_select
+                    } else {
+                        R.drawable.discovery_select
+                    }
+                )
+            }
+            R.string.cloud_village -> {
+                currentTab.setIcon(
+                    if (select == true) {
+                        R.drawable.discovery_select
+                    } else {
+                        R.drawable.discovery_select
+                    }
+                )
+            }
+            else -> {
+                //do nothing
             }
         }
     }
