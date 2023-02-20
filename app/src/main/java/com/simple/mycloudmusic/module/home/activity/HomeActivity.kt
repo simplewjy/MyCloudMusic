@@ -7,7 +7,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.simple.mycloudmusic.R
 import com.simple.mycloudmusic.module.base.BaseActivity
-import com.simple.mycloudmusic.module.home.fragment.BlankFragment
+import com.simple.mycloudmusic.module.home.fragment.*
 import com.simple.mycloudmusic.module.utils.beanCopy
 import kotlinx.android.synthetic.main.activity_home.*
 
@@ -24,19 +24,14 @@ class HomeActivity : BaseActivity() {
         )
     }
 
-    private val a = "a"
-    private val b = "a"
-    private val c = "a"
-    val d = "a"
-
     override fun getLayoutId(): Int {
         return R.layout.activity_home
     }
 
     override fun initView() {
+        super.initView()
         this.javaClass.beanCopy()
         initTab()
-
     }
 
     /**
@@ -44,28 +39,28 @@ class HomeActivity : BaseActivity() {
      */
     private fun initTab() {
         //初始化tab
-        val tabFound = tab_home.newTab()
-        tabFound.setIcon(R.drawable.discovery_unselect)
-        tabFound.text = resources.getString(R.string.found)
-        tabFound.view.tag = resources.getString(R.string.found)
+        val tabDiscovery = tab_home.newTab()
+        tabDiscovery.setIcon(R.drawable.discovery_unselect)
+        tabDiscovery.text = resources.getString(R.string.discovery)
+        tabDiscovery.view.tag = resources.getString(R.string.discovery)
         val tabSprinkler = tab_home.newTab()
-        tabSprinkler.setIcon(R.mipmap.icon_cloud_music)
+        tabSprinkler.setIcon(R.drawable.sprinkler_unselect)
         tabSprinkler.text = resources.getString(R.string.sprinkler)
         tabSprinkler.view.tag = resources.getString(R.string.sprinkler)
         val tabMine = tab_home.newTab()
-        tabMine.setIcon(R.mipmap.icon_cloud_music)
+        tabMine.setIcon(R.drawable.mine_unselect)
         tabMine.text = resources.getString(R.string.mine)
         tabMine.view.tag = resources.getString(R.string.mine)
         val tabKaraoke = tab_home.newTab()
-        tabKaraoke.setIcon(R.mipmap.icon_cloud_music)
-        tabKaraoke.text = resources.getString(R.string.karaoke)
-        tabKaraoke.view.tag = resources.getString(R.string.karaoke)
+        tabKaraoke.setIcon(R.drawable.follow_unselect)
+        tabKaraoke.text = resources.getString(R.string.follow)
+        tabKaraoke.view.tag = resources.getString(R.string.follow)
         val tabCloudVillage = tab_home.newTab()
-        tabCloudVillage.setIcon(R.mipmap.icon_cloud_music)
-        tabCloudVillage.text = resources.getString(R.string.cloud_village)
-        tabCloudVillage.view.tag = resources.getString(R.string.cloud_village)
+        tabCloudVillage.setIcon(R.drawable.cloud_village_unselect)
+        tabCloudVillage.text = resources.getString(R.string.community)
+        tabCloudVillage.view.tag = resources.getString(R.string.community)
 
-        tab_home.addTab(tabFound)
+        tab_home.addTab(tabDiscovery)
         tab_home.addTab(tabSprinkler)
         tab_home.addTab(tabMine)
         tab_home.addTab(tabKaraoke)
@@ -104,13 +99,14 @@ class HomeActivity : BaseActivity() {
     private fun setTabState() {
         for (i in 0 until tab_home.tabCount) {
             val currentTab = tab_home.getTabAt(i)
-            setItemState(currentTab, currentTab?.isSelected)
+            setItemState(currentTab)
         }
     }
 
-    private fun setItemState(currentTab: TabLayout.Tab?, select: Boolean?) {
+    private fun setItemState(currentTab: TabLayout.Tab?) {
+        val select = currentTab?.isSelected
         when (currentTab?.view?.tag) {
-            R.string.found -> {
+            resources.getString(R.string.discovery) -> {
                 currentTab.setIcon(
                     if (select == true) {
                         R.drawable.discovery_select
@@ -119,39 +115,39 @@ class HomeActivity : BaseActivity() {
                     }
                 )
             }
-            R.string.karaoke -> {
+            resources.getString(R.string.follow) -> {
                 currentTab.setIcon(
                     if (select == true) {
-                        R.drawable.discovery_select
+                        R.drawable.follow_select
                     } else {
-                        R.drawable.discovery_select
+                        R.drawable.follow_unselect
                     }
                 )
             }
-            R.string.mine -> {
+            resources.getString(R.string.mine) -> {
                 currentTab.setIcon(
                     if (select == true) {
-                        R.drawable.discovery_select
+                        R.drawable.mine_select
                     } else {
-                        R.drawable.discovery_select
+                        R.drawable.mine_unselect
                     }
                 )
             }
-            R.string.sprinkler -> {
+            resources.getString(R.string.sprinkler) -> {
                 currentTab.setIcon(
                     if (select == true) {
-                        R.drawable.discovery_select
+                        R.drawable.sprinkler_select
                     } else {
-                        R.drawable.discovery_select
+                        R.drawable.sprinkler_unselect
                     }
                 )
             }
-            R.string.cloud_village -> {
+            resources.getString(R.string.community) -> {
                 currentTab.setIcon(
                     if (select == true) {
-                        R.drawable.discovery_select
+                        R.drawable.cloud_village_select
                     } else {
-                        R.drawable.discovery_select
+                        R.drawable.cloud_village_unselect
                     }
                 )
             }
@@ -165,12 +161,12 @@ class HomeActivity : BaseActivity() {
     internal class ViewPagerStateAdapter :
         FragmentStateAdapter {
 
-        private val mFragments = arrayListOf<BlankFragment>(
-            BlankFragment(),
-            BlankFragment(),
-            BlankFragment(),
-            BlankFragment(),
-            BlankFragment()
+        private val mFragments = arrayListOf(
+            DiscoveryFragment(),
+            SprinklerFragment(),
+            MineFragment(),
+            FollowFragment(),
+            CommunityFragment()
         )
 
         constructor(fragmentActivity: FragmentActivity) : super(fragmentActivity) {

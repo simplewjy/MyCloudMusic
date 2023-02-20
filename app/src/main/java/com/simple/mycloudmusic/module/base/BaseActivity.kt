@@ -2,6 +2,7 @@ package com.simple.mycloudmusic.module.base
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.blankj.utilcode.util.BarUtils
 
 /**
  * Created by Admin
@@ -21,7 +22,9 @@ abstract class BaseActivity : AppCompatActivity() {
     abstract fun getLayoutId(): Int
 
     //初始化view
-    protected open fun initView() {}
+    protected open fun initView() {
+        BarUtils.setStatusBarLightMode(this, false)
+    }
 
     //初始化数据
     protected open fun initData() {}

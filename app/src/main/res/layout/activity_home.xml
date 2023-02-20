@@ -23,8 +23,9 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:tabRippleColor="@color/transparent"
         app:tabIndicatorColor="@color/transparent"
-        app:tabSelectedTextColor="@color/color_red"
+        app:tabSelectedTextColor="@color/matcha_green"
         app:tabTextAppearance="@style/MyTabTextAppearance" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -26,7 +26,9 @@
 
 
     <style name="FullTheme" parent="MyNoActionBarTheme">
+        <item name="android:windowBackground">@drawable/splash_bg_colorful</item>
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:navigationBarColor">@color/transparent</item>
     </style>
 </resources>
