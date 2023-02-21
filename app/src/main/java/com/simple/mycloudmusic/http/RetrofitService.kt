@@ -25,7 +25,7 @@ class RetrofitService {
 
 
         @JvmField
-        var BaseUrl: String = ""
+        var BaseUrl: String = "https://neteasecloud.moonsimple.space/"
 
         //默认连接超时时间
         const val DEFAULT_CONNECT_TIME_OUT = 15L
