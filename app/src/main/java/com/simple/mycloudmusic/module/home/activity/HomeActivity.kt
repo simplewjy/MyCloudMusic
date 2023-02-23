@@ -2,14 +2,18 @@ package com.simple.mycloudmusic.module.home.activity
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.simple.mycloudmusic.R
+import com.simple.mycloudmusic.http.repository.RemoteService
 import com.simple.mycloudmusic.module.base.BaseActivity
 import com.simple.mycloudmusic.module.home.fragment.*
 import com.simple.mycloudmusic.module.utils.beanCopy
 import kotlinx.android.synthetic.main.activity_home.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 /**
  * Description app的主页面
@@ -32,6 +36,14 @@ class HomeActivity : BaseActivity() {
         super.initView()
         this.javaClass.beanCopy()
         initTab()
+    }
+
+    override fun initData() {
+        super.initData()
+        lifecycleScope.launch {
+//            RemoteService.loginByPhone("17856013748", "wjy19961124")
+            RemoteService.checkMusic("33894312")
+        }
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.simple.mycloudmusic.http
 
 import android.util.Log
+import com.simple.mycloudmusic.http.interceptor.HeaderInterceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -12,12 +13,12 @@ import java.util.concurrent.TimeUnit
  * Created by Admin
  * On 2021/5/7
  */
-class RetrofitService {
+class RetrofitService private constructor() {
 
     private lateinit var mRetrofit: Retrofit
 
 
-    constructor() {
+    init {
         build()
     }
 
@@ -39,7 +40,9 @@ class RetrofitService {
         /**
          * 获取单例
          */
-        fun getInstance(url: String?): RetrofitService {
+        @JvmOverloads
+        @JvmStatic
+        fun getInstance(url: String? = null): RetrofitService {
             synchronized(RetrofitService::class.java) {
                 if (instance == null || url != BaseUrl) {
                     instance = RetrofitService()
@@ -62,7 +65,7 @@ class RetrofitService {
     /**
      * create
      */
-    private fun <T> create(service: Class<T>): T {
+    fun <T> create(service: Class<T>): T {
         return mRetrofit.create(service)
     }
 
@@ -82,6 +85,7 @@ class RetrofitService {
         loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
 
         okHttpClientBuilder.addInterceptor(loggingInterceptor)
+        okHttpClientBuilder.addInterceptor(HeaderInterceptor())
         okHttpClientBuilder.connectTimeout(DEFAULT_CONNECT_TIME_OUT, TimeUnit.SECONDS)
         okHttpClientBuilder.readTimeout(DEFAULT_READ_TIME_OUT, TimeUnit.SECONDS)
         return okHttpClientBuilder.build()
